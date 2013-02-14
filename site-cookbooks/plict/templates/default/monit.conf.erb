@@ -18,9 +18,10 @@ check process ntp with pidfile /var/run/ntpd.pid
 
   if failed host localhost port 123 type udp then restart
 
-check process sendmail with pidfile /var/run/sendmail/mta/sendmail.pid
-  start "/etc/init.d/sendmail start"
-	stop  "/etc/init.d/sendmail stop"
+check process postfix
+  matching postfix
+  start "/etc/init.d/postfix start"
+	stop  "/etc/init.d/postfix stop"
 
 	if failed host localhost port 25 protocol smtp then restart
 
