@@ -1,0 +1,8 @@
+{
+  "run_list": ["recipe[plict]"],
+  "user": {
+    "name": "pepijn",
+    "key": "ssh-rsa AAAAblabla"
+  }
+}
+

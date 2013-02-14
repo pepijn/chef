@@ -1,0 +1,58 @@
+set daemon 30
+set mailserver localhost
+set mail-format { from: monit@<%= node.name %> }
+
+set alert pepijnlooije@gmail.com not on { pid, ppid, action, instance, nonexist }
+
+set httpd port 2812 and
+  allow pepijn:jJ2KRnsAEK2xeYzM9srHgzGga
+
+# Processes
+check process cron with pidfile /var/run/crond.pid
+	start "/etc/init.d/cron start"
+	stop  "/etc/init.d/cron stop"
+
+check process ntp with pidfile /var/run/ntpd.pid
+  start "/etc/init.d/ntp start"
+  stop  "/etc/init.d/ntp stop"
+
+  if failed host localhost port 123 type udp then restart
+
+check process sendmail with pidfile /var/run/sendmail/mta/sendmail.pid
+  start "/etc/init.d/sendmail start"
+	stop  "/etc/init.d/sendmail stop"
+
+	if failed host localhost port 25 protocol smtp then restart
+
+check process ssh with pidfile /var/run/sshd.pid
+  start "/etc/init.d/ssh start"
+	stop  "/etc/init.d/ssh stop"
+
+  if failed host localhost port 22 protocol ssh
+    then restart
+
+check process nginx with pidfile /var/run/nginx.pid
+	start "/etc/init.d/nginx start"
+	stop  "/etc/init.d/nginx stop"
+
+  if failed host localhost port 8080 then restart
+
+check process apache2 with pidfile /var/run/apache2.pid
+	start "/etc/init.d/apache2 start"
+	stop  "/etc/init.d/apache2 stop"
+
+	if failed host localhost port 8080 then restart
+
+check process mysql with pidfile /var/run/mysqld/mysqld.pid
+	start "/etc/init.d/mysql start"
+	stop  "/etc/init.d/mysql stop"
+
+	if failed host localhost port 3306 protocol mysql then restart
+
+check process vsftpd
+	matching vsftpd
+	start "/etc/init.d/vsftpd start"
+	stop  "/etc/init.d/vsftpd stop"
+
+	if failed host localhost port 21 protocol ftp then restart
+
