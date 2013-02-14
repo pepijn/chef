@@ -1,17 +1,14 @@
 package "sudo"
 package "htop"
-package "ufw"
-
-template "etc/hostname"
 
 admin_user = node[:user][:name]
 
-directory "home" do
+directory "/home" do
   mode 0751
 end
 
-users = [admin_user]
-users += %w(henryderijk.nl miriamvanderpol.com)
+users = [admin_user, "app"]
+
 users.each do |domain|
   home_dir = "/home/#{domain}"
   name = domain.split('.').first
@@ -22,18 +19,7 @@ users.each do |domain|
   end
 
   directory home_dir do
-    group "www-data"
     mode 0750
-  end
-
-  directory "#{home_dir}/public_html" do
-    user name
-    group name
-  end
-
-  group "clients" do
-    members name
-    append true
   end
 end
 
@@ -77,47 +63,10 @@ template "nginx" do
   notifies :reload, "service[nginx]"
 end
 
-### Apache 2
-package "apache2"
+### Ruby
+package "ruby1.9.3"
 
-service "apache2" do
-  supports reload: true
-end
-
-%w(conf load).each do |extension|
-  link "etc/apache2/mods-enabled/userdir.#{extension}" do
-    to "../mods-available/userdir.#{extension}"
-  end
-end
-
-%w(vhost_alias expires rewrite headers).each do |mod|
-  link "etc/apache2/mods-enabled/#{mod}.load" do
-    to "../mods-available/#{mod}.load"
-  end
-end
-
-template "apache2" do
-  path "etc/apache2/sites-available/default"
-  notifies :reload, "service[apache2]"
-end
-
-template "etc/apache2/ports.conf" do
-  notifies :reload, "service[apache2]"
-end
-
-### PHP5
-package "libapache2-mod-php5"
-package "php5-mysql"
-package "libssh2-php"
-package "php-apc"
-package "php5-curl"
-
-template "etc/apache2/mods-enabled/php5.conf" do
-  notifies :reload, "service[apache2]"
-end
-
-### PhpMyAdmin
-package "phpmyadmin"
+gem_package "bundler"
 
 ### Monit
 package "monit"
@@ -132,17 +81,6 @@ end
 
 ### MySQL
 package "mysql-server-5.5"
-
-### FTP
-package "vsftpd"
-
-service "vsftpd" do
-  supports restart: true
-end
-
-template "etc/vsftpd.conf" do
-  notifies :restart, "service[vsftpd]"
-end
 
 ### Firewall
 firewall "ufw" do

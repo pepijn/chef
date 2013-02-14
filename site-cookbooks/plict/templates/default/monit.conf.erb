@@ -38,22 +38,9 @@ check process nginx with pidfile /var/run/nginx.pid
 
   if failed host localhost port 8080 then restart
 
-check process apache2 with pidfile /var/run/apache2.pid
-	start "/etc/init.d/apache2 start"
-	stop  "/etc/init.d/apache2 stop"
-
-	if failed host localhost port 8080 then restart
-
 check process mysql with pidfile /var/run/mysqld/mysqld.pid
 	start "/etc/init.d/mysql start"
 	stop  "/etc/init.d/mysql stop"
 
 	if failed host localhost port 3306 protocol mysql then restart
-
-check process vsftpd
-	matching vsftpd
-	start "/etc/init.d/vsftpd start"
-	stop  "/etc/init.d/vsftpd stop"
-
-	if failed host localhost port 21 protocol ftp then restart
 
