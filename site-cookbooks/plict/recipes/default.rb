@@ -3,10 +3,6 @@ package "htop"
 
 admin_user = node[:user][:name]
 
-directory "/home" do
-  mode 0751
-end
-
 users = [admin_user, "app"]
 
 users.each do |domain|
